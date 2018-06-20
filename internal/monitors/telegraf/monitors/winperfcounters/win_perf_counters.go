@@ -54,9 +54,9 @@ type Perfcounterobj struct {
 type Config struct {
 	config.MonitorConfig `acceptsEndpoints:"false" deepcopier:"skip"`
 	Object               []Perfcounterobj `yaml:"objects" default:"[]"`
-	// number of nanoseconds that wildcards in counter paths should be expanded
+	// number of milliseconds that wildcards in counter paths should be expanded
 	// and how often to refresh counters from configuration
-	CountersRefreshInterval int `yaml:"counterRefreshInterval" default:"60"`
+	CountersRefreshInterval int `yaml:"counterRefreshInterval" default:"60000"`
 	// if `true`, instance indexes will be included in instance names, and wildcards will
 	// be expanded and localized (if applicable).  If `false`, non partial wildcards will
 	// be expanded and instance names will not include instance indexes.
@@ -65,7 +65,7 @@ type Config struct {
 	PrintValid bool `yaml:"printValid"`
 }
 
-// Monitor for Utilization
+// Monitor for Windows Perf Counters
 type Monitor struct {
 	Output types.Output
 	cancel func()
