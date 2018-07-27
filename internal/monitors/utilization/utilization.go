@@ -4,9 +4,10 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
+	log "github.com/sirupsen/logrus"
 )
 
-const monitorType = "utiliziation"
+const monitorType = "signalfx-utilization"
 
 // MONITOR(utilization): This monitor reports utilization metrics for Windows
 // Hosts.
@@ -39,4 +40,9 @@ func init() {
 type Monitor struct {
 	Output types.Output
 	cancel func()
+}
+
+// newDimensionsMap returns a map with the plugin dimesion set
+func newDimensionsMap() map[string]string {
+	return map[string]string{"plugin": monitorType}
 }
