@@ -19,8 +19,8 @@ import (
 // This maps the measurement name from telegraf to a desired metric name
 var metricNameMapping = map[string]string{
 	// NetworkInterface
-	"Bytes_Received_persec": "network.bytes_received_per_second",
-	"Bytes_Sent_persec":     "network.bytes_sent_per_second",
+	"Bytes_Received_persec": "network.bytes_received.per_second",
+	"Bytes_Sent_persec":     "network.bytes_sent.per_second",
 
 	//
 	"Packets_Received_Errors": "if_errors.rx",
@@ -30,12 +30,12 @@ var metricNameMapping = map[string]string{
 	"Free_Megabytes": "disk.free", // perfcounter: "Free Megabytes"; perfcounter reporter: "logicaldisk.free_megabytes"; collectd: "df_complex.free";
 
 	// PhysicalDisk
-	"Disk_Reads_persec":  "disk.reads_per_second",
-	"Disk_Writes_persec": "disk.writes_per_second",
+	"Disk_Reads_persec":  "disk.reads.per_second",
+	"Disk_Writes_persec": "disk.writes.per_second",
 
 	// Memory
-	"Pages_Input_persec":  "memory.swap_in_per_second",  // perfcounter: "Pages Input/sec"; perfcounter reporter: "memory.pages_input_sec"; collectd: "vmpage_io.swap.in";
-	"Pages_Output_persec": "memory.swap_out_per_second", // perfcounter: "Pages Input/sec"; perfcounter reporter: "-"; collectd: "vmpage_io.swap.out";
+	"Pages_Input_persec":  "memory.swap_in.per_second",  // perfcounter: "Pages Input/sec"; perfcounter reporter: "memory.pages_input_sec"; collectd: "vmpage_io.swap.in";
+	"Pages_Output_persec": "memory.swap_out.per_second", // perfcounter: "Pages Input/sec"; perfcounter reporter: "-"; collectd: "vmpage_io.swap.out";
 }
 
 func (m *Monitor) emitMemoryUtilization() {
@@ -266,7 +266,7 @@ func (m *Monitor) Configure(conf *Config) error {
 			},
 			winperfcounters.Perfcounterobj{
 				ObjectName:   "NetworkInterface",
-				Counters:     []string{"Bytes Received/ses", "Bytes Sent/sec"},
+				Counters:     []string{"Bytes Received/sec", "Bytes Sent/sec"},
 				Instances:    []string{"*"},
 				Measurement:  "win_network_interface",
 				IncludeTotal: true,
