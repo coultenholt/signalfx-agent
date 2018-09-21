@@ -145,8 +145,10 @@ func (m *PyMonitor) Configure(conf PyConfig) error {
 
 			if err := m.handleMessage(msgType, payloadReader); err != nil {
 				m.Logger().WithError(err).Error("Could not handle message from Python")
-				if _, err2 := io.Copy(ioutil.Discard, payloadReader); err2 != nil {
+				if b, err2 := ioutil.ReadAll(payloadReader); err2 != nil {
 					m.Logger().WithError(err2).Error("Could not flush payloadReader after error")
+				} else {
+					m.Logger().Debug(fmt.Sprintf("This is the payload: %s", string(b[:len(b)])))
 				}
 				continue
 			}
