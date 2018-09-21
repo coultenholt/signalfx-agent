@@ -4,6 +4,8 @@ import (
 	"encoding/binary"
 	"errors"
 	"io"
+	log "github.com/sirupsen/logrus"
+
 )
 
 // MessageType is the type of the message going to the python runner
@@ -28,6 +30,8 @@ type messageReadWriter struct {
 	lastPayloadReader *io.LimitedReader
 }
 
+var logger = log.StandardLogger()
+
 // MessageReceiver can get messages from Python
 type MessageReceiver interface {
 	RecvMessage() (MessageType, io.Reader, error)
@@ -48,11 +52,15 @@ func (m *messageReadWriter) RecvMessage() (MessageType, io.Reader, error) {
 
 	msgType := MessageType(binary.LittleEndian.Uint32(buf[:]))
 
+	logger.Debug("Payload type: %v %d", msgType, uint32(msgType))
+
 	if _, err := io.ReadFull(m.Reader, buf[:]); err != nil {
 		return MessageTypeNone, nil, err
 	}
 
 	size := binary.LittleEndian.Uint32(buf[:])
+
+	logger.Debug("Payload size: %d", size)
 
 	payloadReader := &io.LimitedReader{
 		R: m.Reader,
