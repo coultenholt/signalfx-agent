@@ -168,6 +168,7 @@ func (m *PyMonitor) handleMessage(msgType pyrunner.MessageType, payloadReader io
 			return payerr
 		}
 		if err := easyjson.Unmarshal(payload, &valueList); err != nil {
+			m.Logger().Debugf("The payload in bytes is: %v", payload)
 			return fmt.Errorf("%v the full payload is: %v", err, string(payload[:]))
 		}
 
