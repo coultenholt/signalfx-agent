@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"io/ioutil"
 	"strconv"
 
 	"github.com/davecgh/go-spew/spew"
@@ -144,6 +145,9 @@ func (m *PyMonitor) Configure(conf PyConfig) error {
 
 			if err := m.handleMessage(msgType, payloadReader); err != nil {
 				m.Logger().WithError(err).Error("Could not handle message from Python")
+				if _, err2 := io.Copy(ioutil.Discard, payloadReader); err2 != nil {
+					m.Logger().WithError(err2).Error("Could not flush payloadReader after error")
+				}
 				continue
 			}
 		}
