@@ -160,8 +160,14 @@ func (m *PyMonitor) handleMessage(msgType pyrunner.MessageType, payloadReader io
 	switch msgType {
 	case messageTypeValueList:
 		var valueList collectdformat.JSONWriteFormat
-		if err := easyjson.UnmarshalFromReader(payloadReader, &valueList); err != nil {
-			return err
+		var payload []byte
+		var payerr error
+
+		if payload, payerr = ioutil.ReadAll(payloadReader); payerr != nil {
+			return payerr
+		}
+		if err := easyjson.Unmarshal(payload, &valueList); err != nil {
+			return fmt.Errorf("%v the full payload is: %v", err, string(payload[:]))
 		}
 
 		dps := make([]*datapoint.Datapoint, 0)
