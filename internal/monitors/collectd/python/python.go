@@ -148,7 +148,7 @@ func (m *PyMonitor) Configure(conf PyConfig) error {
 				if b, err2 := ioutil.ReadAll(payloadReader); err2 != nil {
 					m.Logger().WithError(err2).Error("Could not flush payloadReader after error")
 				} else {
-					m.Logger().Debug(fmt.Sprintf("This is the payload: %s", string(b[:len(b)])))
+					m.Logger().Debug(fmt.Sprintf("This is the payload: %s", string(b[:])))
 				}
 				continue
 			}
