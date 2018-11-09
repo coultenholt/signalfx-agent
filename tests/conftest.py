@@ -2,7 +2,6 @@ import random
 import re
 import string
 import subprocess
-import time
 import urllib
 from functools import partial as p
 
@@ -11,33 +10,23 @@ import pytest
 from helpers.assertions import has_log_message
 from helpers.kubernetes.minikube import Minikube
 from helpers.kubernetes.utils import container_is_running, has_docker_image
-from helpers.util import wait_for, get_docker_client, run_container
+from helpers.util import wait_for, get_docker_client, run_container, retry
 
 
-def get_latest_k8s_version(url="https://storage.googleapis.com/kubernetes-release/release/stable.txt", max_attempts=3):
+def get_latest_k8s_version(url="https://storage.googleapis.com/kubernetes-release/release/stable.txt"):
     version = None
-    attempt = 0
-    while attempt < max_attempts:
-        attempt += 1
-        try:
-            with urllib.request.urlopen(url) as resp:
-                version = resp.read().decode("utf-8").strip()
-            break
-        except urllib.error.HTTPError as e:
-            if attempt == max_attempts:
-                raise e
-        time.sleep(5)
-        version = None
+    with urllib.request.urlopen(url) as resp:
+        version = resp.read().decode("utf-8").strip()
     assert version, "Failed to get latest K8S version from %s" % url
     assert re.match(r"^v?\d+\.\d+\.\d+$", version), "Unknown version '%s' from %s" % (version, url)
     return version
 
 
 K8S_MIN_VERSION = "1.7.0"
-K8S_LATEST_VERSION = get_latest_k8s_version()
+K8S_LATEST_VERSION = retry(get_latest_k8s_version, urllib.error.URLError)
 K8S_DEFAULT_VERSION = re.sub(r"\.\d+$", ".0", K8S_LATEST_VERSION)
 K8S_DEFAULT_TIMEOUT = 300
-K8S_DEFAULT_TEST_TIMEOUT = 120
+K8S_DEFAULT_TEST_TIMEOUT = 60
 K8S_DEFAULT_CONTAINER_NAME = "minikube"
 K8S_SUPPORTED_OBSERVERS = ["k8s-api", "k8s-kubelet"]
 K8S_DEFAULT_OBSERVERS = K8S_SUPPORTED_OBSERVERS
