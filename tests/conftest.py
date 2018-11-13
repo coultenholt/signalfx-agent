@@ -1,3 +1,4 @@
+import os
 import random
 import re
 import string
@@ -22,6 +23,7 @@ def get_latest_k8s_version(url="https://storage.googleapis.com/kubernetes-releas
     return version
 
 
+REPO_ROOT_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "..")
 K8S_MIN_VERSION = "1.7.0"
 K8S_LATEST_VERSION = retry(get_latest_k8s_version, urllib.error.URLError)
 K8S_DEFAULT_VERSION = re.sub(r"\.\d+$", ".0", K8S_LATEST_VERSION)
@@ -214,6 +216,7 @@ def agent_image(minikube, registry, request, worker_id):  # pylint: disable=rede
                 env={"PULL_CACHE": "yes", "AGENT_IMAGE_NAME": agent_image_name, "AGENT_VERSION": agent_image_tag},
                 stderr=subprocess.STDOUT,
                 check=True,
+                cwd=REPO_ROOT_DIR,
             )
             sfx_agent_image = client.images.get(agent_image_name + ":" + agent_image_tag)
         temp_agent_name = "localhost:%d/signalfx-agent-dev" % registry["port"]
