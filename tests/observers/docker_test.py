@@ -44,7 +44,9 @@ monitors:
 def test_docker_observer():
     with run_agent(CONFIG) as [backend, _, _]:
         with run_service("nginx", name="nginx-discovery", labels={"mylabel": "abc"}):
-            assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "nginx")), "Didn't get nginx datapoints"
+            assert wait_for(
+                p(has_datapoint_with_dim, backend, "container_name", "nginx-discovery")
+            ), "Didn't get nginx datapoints"
             assert wait_for(p(has_datapoint_with_dim, backend, "mydim", "abc")), "Didn't get custom label dimension"
         # Let nginx be removed by docker observer and collectd restart
         time.sleep(5)
@@ -94,7 +96,9 @@ def test_docker_observer_labels():
                 "agent.signalfx.com.config.80.intervalSeconds": "1",
             },
         ):
-            assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "nginx")), "Didn't get nginx datapoints"
+            assert wait_for(
+                p(has_datapoint_with_dim, backend, "container_name", "nginx-disco-full")
+            ), "Didn't get nginx datapoints"
         # Let nginx be removed by docker observer and collectd restart
         time.sleep(5)
         backend.datapoints.clear()
