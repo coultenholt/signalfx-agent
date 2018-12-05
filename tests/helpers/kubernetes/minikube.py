@@ -67,6 +67,7 @@ class Minikube:  # pylint: disable=too-many-instance-attributes
             try:
                 return container_cmd_exit_0(self.container, "test -f %s" % kubeconfig_path)
             except requests.exceptions.RequestException as e:
+                print("RequestException exception caught:\n%s" % str(e))
                 return False
 
         assert wait_for(_kubeconfig_exists, timeout_seconds=timeout, interval_seconds=2), (

@@ -111,6 +111,9 @@ commands:
                 sudo -E $PYENV_ROOT/shims/pytest << parameters.pytest_options >> $PYTEST_OPTIONS $TESTS
             else
                 pytest << parameters.pytest_options >> $PYTEST_OPTIONS $TESTS
+                if grep -P '(RequestException|DockerException)' ~/testresults/results.html; then
+                    exit 1
+                fi
             fi
       - save_test_results
 
@@ -493,6 +496,13 @@ workflows:
       - pylint_black:
           name: "python_lint"
           target: "python"
+    triggers:
+      - schedule:
+          cron: "0,30 * * * *"
+          filters:
+            branches:
+              only:
+                - int-test-updates
   stage_cache_job:
     jobs:
       - update_stage_cache
