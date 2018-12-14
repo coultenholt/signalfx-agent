@@ -36,10 +36,12 @@ def run_kafka(version):
             environment={"JMX_PORT": "7099", "KAFKA_ZOOKEEPER_CONNECT": "%s:2181" % (zkhost,), "START_AS": "broker"},
             buildargs={"KAFKA_VERSION": version},
         ) as kafka_container:
-            run_service(
-                "kafka",
+            kafkahost = container_ip(kafka_container)
+            assert wait_for(p(tcp_socket_open, kafkahost, 9092), 60), "kafka broker didn't start"
+            assert wait_for(p(tcp_socket_open, kafkahost, 7099), 60), "kafka broker jmx didn't start"
+            run_container(
+                kafka_container.image.id,
                 environment={"START_AS": "create-topic", "KAFKA_ZOOKEEPER_CONNECT": "%s:2181" % (zkhost,)},
-                buildargs={"KAFKA_VERSION": version},
             )
             yield kafka_container
 
@@ -75,18 +77,18 @@ VERSIONS = ["0.9.0.0", "0.10.0.0", "0.11.0.0", "1.0.0", "1.0.1", "1.1.1", "2.0.0
 def test_all_kafka_monitors(version):
     with run_kafka(version) as kafka:
         kafkahost = container_ip(kafka)
-        with run_service(
-            "kafka",
+        with run_container(
+            kafka.image.id,
             environment={"JMX_PORT": "8099", "START_AS": "producer", "KAFKA_BROKER": "%s:9092" % (kafkahost,)},
-            buildargs={"KAFKA_VERSION": version},
         ) as kafka_producer:
             kafkaproducerhost = container_ip(kafka_producer)
-            with run_service(
-                "kafka",
+            assert wait_for(p(tcp_socket_open, kafkaproducerhost, 8099), 60), "kafka producer jmx didn't start"
+            with run_container(
+                kafka.image.id,
                 environment={"JMX_PORT": "9099", "START_AS": "consumer", "KAFKA_BROKER": "%s:9092" % (kafkahost,)},
-                buildargs={"KAFKA_VERSION": version},
             ) as kafka_consumer:
                 kafkaconsumerhost = container_ip(kafka_consumer)
+                assert wait_for(p(tcp_socket_open, kafkaconsumerhost, 9099), 60), "kafka consumer jmx didn't start"
                 with run_agent(
                     textwrap.dedent(
                         """
