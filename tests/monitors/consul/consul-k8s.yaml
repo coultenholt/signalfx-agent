@@ -20,9 +20,17 @@ spec:
           image: consul:0.9.3
           ports:
             - containerPort: 8500
+          livenessProbe:
+            tcpSocket:
+              port: 8500
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 30
           readinessProbe:
             tcpSocket:
               port: 8500
             initialDelaySeconds: 5
-            periodSeconds: 1
-            timeoutSeconds: 60
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 30

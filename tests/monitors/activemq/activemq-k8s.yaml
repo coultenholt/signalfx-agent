@@ -20,9 +20,17 @@ spec:
           image: activemq:k8s-test
           ports:
             - containerPort: 1099
+          livenessProbe:
+            tcpSocket:
+              port: 1099
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 30
           readinessProbe:
             tcpSocket:
               port: 1099
             initialDelaySeconds: 5
-            periodSeconds: 1
-            timeoutSeconds: 60
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 30

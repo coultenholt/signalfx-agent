@@ -27,9 +27,17 @@ spec:
                   fieldPath: status.podIP
           command: ["/usr/local/bin/etcd"]
           args: ["--advertise-client-urls", "http://$(POD_IP):2379", "--listen-client-urls", "http://$(POD_IP):2379"]
+          livenessProbe:
+            tcpSocket:
+              port: 2379
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 30
           readinessProbe:
             tcpSocket:
               port: 2379
             initialDelaySeconds: 5
-            periodSeconds: 1
-            timeoutSeconds: 60
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 30

@@ -29,12 +29,20 @@ spec:
             - containerPort: 8001
           command: ["/bin/sh"]
           args: ["-c", "while [ 0 ]; do kong migrations up && break; sleep 1; done && /docker-entrypoint.sh kong docker-start"]
+          livenessProbe:
+            tcpSocket:
+              port: 8001
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 30
           readinessProbe:
             tcpSocket:
               port: 8001
             initialDelaySeconds: 5
-            periodSeconds: 1
-            timeoutSeconds: 60
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 30
         - name: postgres
           image: postgres:9.6
           env:
@@ -46,9 +54,17 @@ spec:
               value: kong
           ports:
             - containerPort: 5432
+          livenessProbe:
+            tcpSocket:
+              port: 5432
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 30
           readinessProbe:
             tcpSocket:
               port: 5432
             initialDelaySeconds: 5
-            periodSeconds: 1
-            timeoutSeconds: 60
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 30
